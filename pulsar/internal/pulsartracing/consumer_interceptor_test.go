@@ -100,6 +100,10 @@ func (c *mockConsumer) SeekByTime(time time.Time) error {
 	return nil
 }
 
+func (c *mockConsumer) GetLastMessageID(topicName string, partitionID int64) (pulsar.MessageID, error) {
+	return nil, nil
+}
+
 func (c *mockConsumer) Name() string {
 	return ""
 }

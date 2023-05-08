@@ -686,6 +686,11 @@ func (c *consumer) SeekByTime(time time.Time) error {
 	return errs
 }
 
+func (c *consumer) GetLastMessageID(topicName string, partitionId int64) (MessageID, error) {
+	msg, err := c.consumers[partitionId].getLastMessageID()
+	return msg.messageID, err
+}
+
 func (c *consumer) checkMsgIDPartition(msgID MessageID) error {
 	partition := msgID.PartitionIdx()
 	if partition < 0 || int(partition) >= len(c.consumers) {

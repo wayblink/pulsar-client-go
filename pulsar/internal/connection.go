@@ -909,10 +909,12 @@ func (c *connection) handleCloseProducer(closeProducer *pb.CommandCloseProducer)
 }
 
 func (c *connection) RegisterListener(id uint64, listener ConnectionListener) error {
+	c.Lock()
+	defer c.Unlock()
 	// do not add if connection is closed
 	if c.closed() {
 		c.log.Warnf("Connection closed unable register listener id=%+v", id)
-		return errUnableRegisterListener
+		return errors.New("connection is closed")
 	}
 
 	c.listenersLock.Lock()
@@ -1091,10 +1093,12 @@ func (c *connection) getTLSConfig() (*tls.Config, error) {
 }
 
 func (c *connection) AddConsumeHandler(id uint64, handler ConsumerHandler) error {
+	c.Lock()
+	defer c.Unlock()
 	// do not add if connection is closed
 	if c.closed() {
 		c.log.Warnf("Closed connection unable add consumer with id=%+v", id)
-		return errUnableAddConsumeHandler
+		return errors.New("connection is closed")
 	}
 
 	c.consumerHandlersLock.Lock()
