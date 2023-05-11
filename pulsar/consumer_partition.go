@@ -1545,13 +1545,6 @@ func (pc *partitionConsumer) reconnectToBroker() {
 		if pc.getConsumerState() != consumerReady {
 			// Consumer is already closing
 			pc.log.Info("consumer state not ready, exit reconnect")
-			// Notify any wait seek request
-			select {
-			case pc.reconnectCh <- nil:
-				// send signal to seek request
-			default:
-				// no waiting seek
-			}
 			return
 		}
 
@@ -1573,6 +1566,13 @@ func (pc *partitionConsumer) reconnectToBroker() {
 		if err == nil {
 			// Successfully reconnected
 			pc.log.Info("Reconnected consumer to broker")
+			// Notify any wait seek request
+			select {
+			case pc.reconnectCh <- nil:
+				// send signal to seek request
+			default:
+				// no waiting seek
+			}
 			return
 		}
 		pc.log.WithError(err).Error("Failed to create consumer at reconnect")
