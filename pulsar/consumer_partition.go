@@ -162,7 +162,7 @@ type partitionConsumer struct {
 	connectClosedCh chan connectionClosed
 	closeCh         chan struct{}
 	clearQueueCh    chan func(id *trackingMessageID)
-	reconnectCh     chan error
+	//reconnectCh     chan error
 
 	nackTracker *negativeAcksTracker
 	dlq         *dlqRouter
@@ -742,24 +742,26 @@ func (pc *partitionConsumer) Seek(msgID MessageID) error {
 	}
 
 	pc.ackGroupingTracker.flushAndClean()
-	// it safe to change channel value here, since only one event is processed
-	pc.reconnectCh = make(chan error, 1)
+	//// it safe to change channel value here, since only one event is processed
+	//pc.reconnectCh = make(chan error, 1)
 	pc.eventsCh <- req
 
 	// wait for the request to complete
 	<-req.doneCh
-	// shall not wait, since req got error
-	if req.err != nil {
-		return req.err
-	}
+	//// shall not wait, since req got error
+	//if req.err != nil {
+	//	return req.err
+	//}
+	//
+	//// wait for reconnect to broker signal
+	//err := <-pc.reconnectCh
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//return nil
 
-	// wait for reconnect to broker signal
-	err := <-pc.reconnectCh
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return req.err
 }
 
 func (pc *partitionConsumer) internalSeek(seek *seekRequest) {
@@ -1545,13 +1547,13 @@ func (pc *partitionConsumer) reconnectToBroker() {
 		if pc.getConsumerState() != consumerReady {
 			// Consumer is already closing
 			pc.log.Info("consumer state not ready, exit reconnect")
-			// Notify any wait seek request
-			select {
-			case pc.reconnectCh <- nil:
-				// send signal to seek request
-			default:
-				// no waiting seek
-			}
+			//// Notify any wait seek request
+			//select {
+			//case pc.reconnectCh <- nil:
+			//	// send signal to seek request
+			//default:
+			//	// no waiting seek
+			//}
 			return
 		}
 
@@ -1592,10 +1594,10 @@ func (pc *partitionConsumer) reconnectToBroker() {
 		}
 	}
 	// try to notify waiting seek max retry exceeded
-	select {
-	case pc.reconnectCh <- newError(ConnectError, "reconnect to broker failed"):
-	default:
-	}
+	//select {
+	//case pc.reconnectCh <- newError(ConnectError, "reconnect to broker failed"):
+	//default:
+	//}
 }
 
 func (pc *partitionConsumer) grabConn() error {

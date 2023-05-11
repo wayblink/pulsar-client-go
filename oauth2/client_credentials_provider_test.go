@@ -69,6 +69,13 @@ func TestNewInvalidClientCredentialsProviderFromKeyFile(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestNewInvalidClientCredentialsProviderFromKeyFile2(t *testing.T) {
+	p := NewClientCredentialsProviderFromKeyFile("file:///Users/wanganyang/Downloads/o-rlmsq-sn-zilliz.json")
+	s, err := p.GetClientCredentials()
+	assert.Nil(t, s)
+	require.Error(t, err)
+}
+
 func assertCredentials(t *testing.T, keyfile string, expected *KeyFile) {
 	p := NewClientCredentialsProviderFromKeyFile(keyfile)
 	clientCredentials, err := p.GetClientCredentials()
